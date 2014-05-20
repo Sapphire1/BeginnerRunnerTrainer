@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <TextView
+        android:layout_width="261dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/distance"/>
+    <!--org.osmdroid.views.MapView
+        android:id="@+id/openmapview"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"/-->
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Position"
+        android:id="@+id/btnShowLocation" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:text="@string/reset"
+        android:id="@+id/reset" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/stopGPS"
+        android:id="@+id/stopGPS" />
+
+    <org.osmdroid.views.MapView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/openmapview">
+        </org.osmdroid.views.MapView>
+
+</LinearLayout>
