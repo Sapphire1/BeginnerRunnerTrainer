@@ -7,5 +7,9 @@
     <string name="distance">Distance:</string>
     <string name="reset">Update</string>
     <string name="stopGPS">Stop</string>
+    <string name="title_activity_trening_type">TreningTypeActivity</string>
+    <string name="InfoTreningType">Wybierz rodzaj treningu:</string>
+    <string name="Beginner">Początkujący</string>
+    <string name="Advanced">Zaawansowany</string>
 
 </resources>
