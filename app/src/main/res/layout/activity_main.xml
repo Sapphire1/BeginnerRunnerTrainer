@@ -16,20 +16,15 @@
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Position"
-        android:id="@+id/btnShowLocation" />
-
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="36dp"
-        android:text="@string/reset"
-        android:id="@+id/reset" />
-
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/stopGPS"
+        android:text="STOP"
         android:id="@+id/stopGPS" />
+
+    <Button
+        android:layout_width="394dp"
+        android:layout_height="wrap_content"
+        android:text="Stoper"
+        android:id="@+id/stoperButton"
+        android:layout_gravity="center_horizontal" />
 
     <org.osmdroid.views.MapView
         xmlns:android="http://schemas.android.com/apk/res/android"

@@ -17,7 +17,6 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import android.content.Intent;
-import android.content.Context;
 
 
 public class MainActivity extends Activity {
@@ -31,6 +30,7 @@ public class MainActivity extends Activity {
         public GPS gps;
         private android.os.Handler handler = new android.os.Handler();
         private Runnable runnable = new Runnable() {
+
         @Override
         public void run() {
             /* do what you need to do */
@@ -47,10 +47,13 @@ public class MainActivity extends Activity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        // jak wraca ze stopera to przywrocic poprzedni widok a nie tworzyc nowego
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Intent i = getIntent();
         MainActivity prevActivity = (MainActivity)getLastNonConfigurationInstance();
+
+
         if(prevActivity!= null) {
             Toast.makeText(getApplicationContext(), "Rotation!!!  prevActivity exists!\n", Toast.LENGTH_LONG).show();
             this.distance=prevActivity.distance;
@@ -96,12 +99,12 @@ public class MainActivity extends Activity {
             tv.setText(message);
             gps = new GPS(MainActivity.this, myOpenMapView, MainActivity.this);
 
-
-
+            // czemu handler?
+            //http://www.mopri.de/2010/timertask-bad-do-it-the-android-way-use-a-handler/comment-page-1/
             handler.postDelayed(runnable, 10000);
 
         }
-        //double latitude = gps.getLatitude();
+            //double latitude = gps.getLatitude();
             //double longitude = gps.getLongitude();
             //GeoPoint gPt = new GeoPoint((int) (latitude* 1E6), (int) (longitude* 1E6));
             //setMarker(gPt, myMarker, markersOverlay);
@@ -158,6 +161,24 @@ public class MainActivity extends Activity {
                         finish();
                     }
                 });
+            Button btnNextScreen = (Button) findViewById(R.id.stoperButton);
+
+            //Listening to button event
+            btnNextScreen.setOnClickListener(new View.OnClickListener() {
+
+                public void onClick(View arg0) {
+                    //Starting a new Intent
+                    Intent nextScreen = new Intent(getApplicationContext(), Stoper.class);
+
+                    //Sending data to another Activity
+                    //nextScreen.putExtra("name", inputName.getText().toString());
+                    //nextScreen.putExtra("email", inputEmail.getText().toString());
+
+                    // starting new activity
+                    startActivity(nextScreen);
+                    //finish();
+                }
+        });
     }
 
     void setMarker(GeoPoint gPt, android.graphics.drawable.Drawable myMarker,  ItemizedIconOverlay markersOverlay)

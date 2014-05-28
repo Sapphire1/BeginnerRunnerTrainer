@@ -11,5 +11,7 @@
     <string name="InfoTreningType">Wybierz rodzaj treningu:</string>
     <string name="Beginner">Początkujący</string>
     <string name="Advanced">Zaawansowany</string>
+    <string name="title_activity_stoper">Stoper</string>
+    <string name="Mapa">Mapa</string>
 
 </resources>
