@@ -14,36 +14,51 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import android.content.Intent;
 
 
+
+
 public class MainActivity extends Activity {
-        public MapView myOpenMapView;
-        public MapController myMapController;
-        float[] distance = new float[1];
-        public PathOverlay myPath;
-        public org.osmdroid.util.ResourceProxyImpl resProxyImp;
-        public android.graphics.drawable.Drawable myMarker;
-        public ItemizedIconOverlay markersOverlay;
-        public GPS gps;
-        private android.os.Handler handler = new android.os.Handler();
-        private Runnable runnable = new Runnable() {
+
+    public static Stopwatch timer;
+    public static float[] distance = new float[1];
+    final int MSG_START_TIMER = 0;
+    final int MSG_STOP_TIMER = 1;
+    final int MSG_UPDATE_TIMER = 2;
+    final int REFRESH_RATE = 100;
+    public MapView myOpenMapView;
+    public MapController myMapController;
+    public Intent timerIntent;
+    public PathOverlay myPath;
+    public org.osmdroid.util.ResourceProxyImpl resProxyImp;
+    public android.graphics.drawable.Drawable myMarker;
+    public ItemizedIconOverlay markersOverlay;
+    public GPS gps;
+
+    Button btnStart,btnStop, btnNextScreen ;
+    private android.os.Handler handler = new android.os.Handler();
+    private Runnable runnable = new Runnable() {
 
         @Override
         public void run() {
             /* do what you need to do */
             //foobar();
             /* and here comes the "trick" */
-            Toast.makeText(getApplicationContext(), "STOP GPS", Toast.LENGTH_LONG).show();
+            //Toast.makeText(getApplicationContext(), "STOP GPS", Toast.LENGTH_LONG).show();
             gps.stopUsingGPS();
-            Toast.makeText(getApplicationContext(), "START GPS", Toast.LENGTH_LONG).show();
+            //Toast.makeText(getApplicationContext(), "START GPS", Toast.LENGTH_LONG).show();
             gps.getLocation();
             //Toast.makeText(getApplicationContext(), "RESTART!!!", Toast.LENGTH_LONG).show();
             handler.postDelayed(this, 30000);
         }
     };
+    String message;
+    android.widget.TextView tv;
+    TextView tvTextView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -55,13 +70,12 @@ public class MainActivity extends Activity {
 
 
         if(prevActivity!= null) {
-            Toast.makeText(getApplicationContext(), "Rotation!!!  prevActivity exists!\n", Toast.LENGTH_LONG).show();
-            this.distance=prevActivity.distance;
+            //Toast.makeText(getApplicationContext(), "Rotation!!!  prevActivity exists!\n", Toast.LENGTH_LONG).show();
             this.myOpenMapView = prevActivity.myOpenMapView;
             this.myPath = prevActivity.myPath;
-            this.distance = prevActivity.distance;
             this.markersOverlay=prevActivity.markersOverlay;
             this.gps = prevActivity.gps;
+            this.tvTextView = prevActivity.tvTextView;
             myOpenMapView = (MapView)findViewById(R.id.openmapview);
             myOpenMapView.getOverlays().add(myPath);
             myOpenMapView.getOverlays().add(markersOverlay);
@@ -72,11 +86,17 @@ public class MainActivity extends Activity {
             myMapController.setZoom(12);
             GeoPoint gPtCenter = new GeoPoint(52233000 + 100000, 21016700 - 100000);
             myMapController.setCenter(gPtCenter);
-            String message = "Your distance is " + distance[0] + " meters";
-            android.widget.TextView tv = (android.widget.TextView) findViewById(R.id.distance);
+            //String message = "Your distance is " + distance[0] + " meters";
+            //android.widget.TextView tv = (android.widget.TextView) findViewById(R.id.distance);
+            //tv.setText(message);
+            //timer.mHandler.sendEmptyMessage(MSG_UPDATE_TIMER);
+            String message = "Time is " + + timer.getElapsedTimeSecs() + " seconds";
+            tv = (android.widget.TextView) findViewById(R.id.distance);
             tv.setText(message);
+            tvTextView.setText(""+ timer.getElapsedTimeSecs());
         }
         else{
+
             distance[0]=12.0f;
             resProxyImp = new
                     org.osmdroid.util.ResourceProxyImpl(this);
@@ -94,91 +114,60 @@ public class MainActivity extends Activity {
             myMapController.setZoom(12);
             GeoPoint gPtCenter = new GeoPoint(52233000 + 100000, 21016700 - 100000);
             myMapController.setCenter(gPtCenter);
-            String message = "Your distance is " + distance[0] + " meters";
-            android.widget.TextView tv = (android.widget.TextView) findViewById(R.id.distance);
-            tv.setText(message);
-            gps = new GPS(MainActivity.this, myOpenMapView, MainActivity.this);
 
+            gps = new GPS(MainActivity.this, myOpenMapView, MainActivity.this);
+            timer = new Stopwatch(MainActivity.this);
             // czemu handler?
             //http://www.mopri.de/2010/timertask-bad-do-it-the-android-way-use-a-handler/comment-page-1/
             handler.postDelayed(runnable, 10000);
+            timerIntent = new Intent(this, Stopwatch.class);
+            //startService(timerIntent);
 
         }
-            //double latitude = gps.getLatitude();
-            //double longitude = gps.getLongitude();
-            //GeoPoint gPt = new GeoPoint((int) (latitude* 1E6), (int) (longitude* 1E6));
-            //setMarker(gPt, myMarker, markersOverlay);
+        String message = "Your distance is " + distance[0] + " meters";
+        android.widget.TextView tv = (android.widget.TextView) findViewById(R.id.distance);
+        tv.setText(message);
+        Button startTimer;
+        startTimer = (Button) findViewById(R.id.startButton);
+        startTimer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View arg0) {
+                //Toast.makeText(getApplicationContext(), "Start timer", Toast.LENGTH_LONG).show();
+                timer.mHandler.sendEmptyMessage(MSG_START_TIMER);
+            }
+        });
+        Button stopTimer;
+        stopTimer = (Button) findViewById(R.id.stopButton);
+        stopTimer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View arg0) {
+               // Toast.makeText(getApplicationContext(), "STOP Timer", Toast.LENGTH_LONG).show();
+                timer.mHandler.sendEmptyMessage(MSG_STOP_TIMER);
+            }
+        });
+        Button stop;
+        stop = (Button) findViewById(R.id.stopGPS);
+        stop.setOnClickListener(new View.OnClickListener() {
+             @Override
+             public void onClick(View arg0) {
+             Toast.makeText(getApplicationContext(), "STOP GPS", Toast.LENGTH_LONG).show();
+             gps.stopUsingGPS();
+             //stopService(timerIntent);
+             handler.removeCallbacks(runnable);
+             finish();
+             }
+        });
 
-            //Toast.makeText(getApplicationContext(), "Your distance is " + distance[0] / 1000 + " km", Toast.LENGTH_LONG).show();
-                /*
-                Button btnShowLocation;
-
-                btnShowLocation = (Button) findViewById(R.id.btnShowLocation);
-
-                btnShowLocation.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View arg0) {
-                        //gps.getLocation();
-                        if (gps.canGetLocation()) {
-                            double latitude = gps.getLatitude();
-                            double longitude = gps.getLongitude();
-                            Toast.makeText(getApplicationContext(), "Your Location is - \nLat: " + (int) (latitude* 1E6) + "\nLong: " + (int) (longitude* 1E6), Toast.LENGTH_LONG).show();
-                            GeoPoint gPt = new GeoPoint((int) (latitude * 1E6), (int) (longitude* 1E6));
-                            if(gPt.getLatitudeE6()!=0 && gPt.getLongitudeE6()!=0)
-                            {
-                                setMarker(gPt, myMarker, markersOverlay);
-                                drawPath(gPt);
-                            }
-                        } else {
-                            gps.showSettingsAlert();
-                        }
-                    }
-                });
-
-                Button reset;
-
-                reset = (Button) findViewById(R.id.reset);
-
-                reset.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View arg0) {
-                            Toast.makeText(getApplicationContext(), "STOP GPS", Toast.LENGTH_LONG).show();
-                            gps.stopUsingGPS();
-                            Toast.makeText(getApplicationContext(), "START GPS", Toast.LENGTH_LONG).show();
-                            gps.getLocation();
-                            //updateGPSandNetwork();
-                    }
-                });
-                */
-                Button stop;
-                stop = (Button) findViewById(R.id.stopGPS);
-                stop.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View arg0) {
-                        Toast.makeText(getApplicationContext(), "STOP GPS", Toast.LENGTH_LONG).show();
-                        gps.stopUsingGPS();
-                        handler.removeCallbacks(runnable);
-                        finish();
-                    }
-                });
             Button btnNextScreen = (Button) findViewById(R.id.stoperButton);
-
-            //Listening to button event
             btnNextScreen.setOnClickListener(new View.OnClickListener() {
 
                 public void onClick(View arg0) {
                     //Starting a new Intent
                     Intent nextScreen = new Intent(getApplicationContext(), Stoper.class);
-
-                    //Sending data to another Activity
-                    //nextScreen.putExtra("name", inputName.getText().toString());
-                    //nextScreen.putExtra("email", inputEmail.getText().toString());
-
-                    // starting new activity
                     startActivity(nextScreen);
-                    //finish();
                 }
         });
+
     }
 
     void setMarker(GeoPoint gPt, android.graphics.drawable.Drawable myMarker,  ItemizedIconOverlay markersOverlay)
@@ -189,13 +178,11 @@ public class MainActivity extends Activity {
     }
     void printInfo()
     {
-        Toast.makeText(getApplicationContext(), "You have new location!", Toast.LENGTH_LONG).show();
+        //Toast.makeText(getApplicationContext(), "You have new location!", Toast.LENGTH_LONG).show();
     }
 
     void drawPath(GeoPoint gPt)
     {
-        //myPath = new PathOverlay(Color.RED, this);
-        //myOpenMapView.getOverlays().add(myPath);
         myPath.addPoint(gPt);
     }
 
@@ -207,8 +194,7 @@ public class MainActivity extends Activity {
     }
     void printIsFirstInfo()
     {
-        Toast.makeText(getApplicationContext(), "First Localization", Toast.LENGTH_LONG).show();
-
+        //Toast.makeText(getApplicationContext(), "First Localization", Toast.LENGTH_LONG).show();
     }
     public Object onRetainNonConfigurationInstance() {
         return this;

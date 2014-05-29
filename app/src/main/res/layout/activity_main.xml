@@ -8,23 +8,28 @@
         android:layout_width="261dp"
         android:layout_height="wrap_content"
         android:id="@+id/distance"/>
-    <!--org.osmdroid.views.MapView
-        android:id="@+id/openmapview"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"/-->
+
+    <EditText
+        android:id="@+id/TextViewTimer"
+        android:layout_width="359dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textView1"
+        android:ems="10" >
+        <requestFocus />
+    </EditText>
 
     <Button
-        android:layout_width="match_parent"
+        android:layout_width="385dp"
         android:layout_height="wrap_content"
-        android:text="STOP"
-        android:id="@+id/stopGPS" />
-
-    <Button
-        android:layout_width="394dp"
-        android:layout_height="wrap_content"
-        android:text="Stoper"
+        android:text="@string/stopperButton"
         android:id="@+id/stoperButton"
         android:layout_gravity="center_horizontal" />
+
+    <include
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/some_id_if_needed"
+        layout="@layout/top_layout" />
 
     <org.osmdroid.views.MapView
         xmlns:android="http://schemas.android.com/apk/res/android"
