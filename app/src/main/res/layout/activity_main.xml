@@ -10,10 +10,15 @@
         android:id="@+id/distance"/>
 
     <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/AverageSpeed"
+        android:text="@string/AverageSpeed" />
+
+    <EditText
         android:id="@+id/TextViewTimer"
         android:layout_width="359dp"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/textView1"
         android:ems="10" >
         <requestFocus />
     </EditText>

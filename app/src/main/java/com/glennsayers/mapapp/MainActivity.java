@@ -24,7 +24,7 @@ import android.content.Intent;
 
 public class MainActivity extends Activity {
 
-    public static Stopwatch timer;
+    public Stopwatch timer;
     public static float[] distance = new float[1];
     final int MSG_START_TIMER = 0;
     final int MSG_STOP_TIMER = 1;
@@ -45,19 +45,31 @@ public class MainActivity extends Activity {
 
         @Override
         public void run() {
-            /* do what you need to do */
-            //foobar();
-            /* and here comes the "trick" */
-            //Toast.makeText(getApplicationContext(), "STOP GPS", Toast.LENGTH_LONG).show();
             gps.stopUsingGPS();
-            //Toast.makeText(getApplicationContext(), "START GPS", Toast.LENGTH_LONG).show();
             gps.getLocation();
-            //Toast.makeText(getApplicationContext(), "RESTART!!!", Toast.LENGTH_LONG).show();
+
+
+            if(timer.running) timer.mHandler.sendEmptyMessage(MSG_UPDATE_TIMER);
+            // na razie tak, żeby działało dla sekund, potem się uogólni
+            // np 30s/60s/200m*1000 = 1/400*1000 = 1000/400 = 2,5 min/km
+            //przeniesc to do gpsa
+
+            if(timer.running)
+            {
+                double averageSpeed = timer.getElapsedTimeSecs()/60.0/distance[0]*1000.0;
+                String message = "Average speed is " + String.format("%.2f", averageSpeed);
+                android.widget.TextView avSpeed = (android.widget.TextView) findViewById(R.id.AverageSpeed);
+                avSpeed.setText(message);
+            }
+            else{
+                distance[0]=0;
+                String message = "0";
+                android.widget.TextView avSpeed = (android.widget.TextView) findViewById(R.id.AverageSpeed);
+                avSpeed.setText(message);
+            }
             handler.postDelayed(this, 30000);
         }
     };
-    String message;
-    android.widget.TextView tv;
     TextView tvTextView;
 
     @Override
@@ -67,8 +79,8 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         Intent i = getIntent();
         MainActivity prevActivity = (MainActivity)getLastNonConfigurationInstance();
-
-
+        if(timer==null )
+            timer = new Stopwatch(MainActivity.this);
         if(prevActivity!= null) {
             //Toast.makeText(getApplicationContext(), "Rotation!!!  prevActivity exists!\n", Toast.LENGTH_LONG).show();
             this.myOpenMapView = prevActivity.myOpenMapView;
@@ -86,18 +98,11 @@ public class MainActivity extends Activity {
             myMapController.setZoom(12);
             GeoPoint gPtCenter = new GeoPoint(52233000 + 100000, 21016700 - 100000);
             myMapController.setCenter(gPtCenter);
-            //String message = "Your distance is " + distance[0] + " meters";
-            //android.widget.TextView tv = (android.widget.TextView) findViewById(R.id.distance);
-            //tv.setText(message);
-            //timer.mHandler.sendEmptyMessage(MSG_UPDATE_TIMER);
-            String message = "Time is " + + timer.getElapsedTimeSecs() + " seconds";
-            tv = (android.widget.TextView) findViewById(R.id.distance);
+            String message = "Your distance is " + distance[0] + " meters";
+            android.widget.TextView tv = (android.widget.TextView) findViewById(R.id.distance);
             tv.setText(message);
-            tvTextView.setText(""+ timer.getElapsedTimeSecs());
         }
         else{
-
-            distance[0]=12.0f;
             resProxyImp = new
                     org.osmdroid.util.ResourceProxyImpl(this);
             myMarker = this.getResources().getDrawable(R.drawable.markeractual);
@@ -114,19 +119,17 @@ public class MainActivity extends Activity {
             myMapController.setZoom(12);
             GeoPoint gPtCenter = new GeoPoint(52233000 + 100000, 21016700 - 100000);
             myMapController.setCenter(gPtCenter);
-
             gps = new GPS(MainActivity.this, myOpenMapView, MainActivity.this);
-            timer = new Stopwatch(MainActivity.this);
             // czemu handler?
             //http://www.mopri.de/2010/timertask-bad-do-it-the-android-way-use-a-handler/comment-page-1/
             handler.postDelayed(runnable, 10000);
-            timerIntent = new Intent(this, Stopwatch.class);
-            //startService(timerIntent);
 
+            String message = "Your distance is " + distance[0] + " meters";
+            android.widget.TextView tv = (android.widget.TextView) findViewById(R.id.distance);
+            tv.setText(message);
         }
-        String message = "Your distance is " + distance[0] + " meters";
-        android.widget.TextView tv = (android.widget.TextView) findViewById(R.id.distance);
-        tv.setText(message);
+        if(timer.running) timer.mHandler.sendEmptyMessage(MSG_UPDATE_TIMER);
+
         Button startTimer;
         startTimer = (Button) findViewById(R.id.startButton);
         startTimer.setOnClickListener(new View.OnClickListener() {
@@ -152,7 +155,6 @@ public class MainActivity extends Activity {
              public void onClick(View arg0) {
              Toast.makeText(getApplicationContext(), "STOP GPS", Toast.LENGTH_LONG).show();
              gps.stopUsingGPS();
-             //stopService(timerIntent);
              handler.removeCallbacks(runnable);
              finish();
              }
@@ -186,12 +188,6 @@ public class MainActivity extends Activity {
         myPath.addPoint(gPt);
     }
 
-    float countDistance(double oldLat, double oldLng, double newLat, double newLng)
-    {
-        float[] newDistance = new float[1];
-        android.location.Location.distanceBetween(oldLat,oldLng,newLat,newLng,newDistance);
-        return newDistance[0];
-    }
     void printIsFirstInfo()
     {
         //Toast.makeText(getApplicationContext(), "First Localization", Toast.LENGTH_LONG).show();

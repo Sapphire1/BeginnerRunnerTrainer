@@ -14,5 +14,6 @@
     <string name="title_activity_stoper">Stoper</string>
     <string name="Mapa">Mapa</string>
     <string name="stopperButton">stopperButton</string>
+    <string name="AverageSpeed">AverageSpeed</string>
 
 </resources>
