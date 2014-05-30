@@ -46,7 +46,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Intent i = getIntent();
-        avSpeed = (android.widget.TextView) findViewById(R.id.AverageSpeed);
+        //avSpeed = (android.widget.TextView) findViewById(R.id.AverageSpeed);
         MainActivity prevActivity = (MainActivity)getLastNonConfigurationInstance();
         if(timer==null )
             timer = new Stopwatch(MainActivity.this);
@@ -104,15 +104,16 @@ public class MainActivity extends Activity {
                 timer.mHandler.sendEmptyMessage(MSG_START_TIMER);
             }
         });
+        /*
         Button stopTimer;
         stopTimer = (Button) findViewById(R.id.stopButton);
         stopTimer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
-                // Toast.makeText(getApplicationContext(), "STOP Timer", Toast.LENGTH_LONG).show();
                 timer.mHandler.sendEmptyMessage(MSG_STOP_TIMER);
             }
         });
+        */
         Button stop;
         stop = (Button) findViewById(R.id.stopGPS);
         stop.setOnClickListener(new View.OnClickListener() {
@@ -121,16 +122,16 @@ public class MainActivity extends Activity {
                 Toast.makeText(getApplicationContext(), "STOP GPS", Toast.LENGTH_LONG).show();
                 gps.gpsHandler.sendEmptyMessage(MSG_STOP_GPS);
                 gps.stopUsingGPS();
+                timer.mHandler.sendEmptyMessage(MSG_STOP_TIMER);
                 //handler.removeCallbacks(runnable);
                 finish();
             }
         });
 
-        Button btnNextScreen = (Button) findViewById(R.id.stoperButton);
+        Button btnNextScreen = (Button) findViewById(R.id.Timers);
         btnNextScreen.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View arg0) {
-                //Starting a new Intent
                 Intent nextScreen = new Intent(getApplicationContext(), Stoper.class);
                 startActivity(nextScreen);
             }

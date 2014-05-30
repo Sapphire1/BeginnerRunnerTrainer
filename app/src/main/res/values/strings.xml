@@ -13,7 +13,10 @@
     <string name="Advanced">Zaawansowany</string>
     <string name="title_activity_stoper">Stoper</string>
     <string name="Mapa">Mapa</string>
-    <string name="stopperButton">stopperButton</string>
+    <string name="stopperButton">Liczniki</string>
     <string name="AverageSpeed">AverageSpeed</string>
+    <string name="STOPAPP">Zakończ</string>
+    <string name="startTrening">Rozpocznij</string>
+    <string name="distanceStopper">Pokonany dystans</string>
 
 </resources>

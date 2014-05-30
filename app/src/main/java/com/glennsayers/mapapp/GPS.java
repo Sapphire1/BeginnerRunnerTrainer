@@ -21,7 +21,6 @@ import android.util.Log;
 import android.widget.TextView;
 
 import org.osmdroid.util.GeoPoint;
-import org.osmdroid.views.MapView;
 
 public class GPS extends Service implements LocationListener {
 
@@ -30,7 +29,6 @@ public class GPS extends Service implements LocationListener {
     // flag for GPS status
     boolean isGPSEnabled = false;
 
-    boolean isFirstPoint = true;
     // flag for network status
     boolean isNetworkEnabled = false;
 
@@ -44,29 +42,27 @@ public class GPS extends Service implements LocationListener {
     double latitude; // latitude
     double longitude; // longitude
     double oldLat=0, oldLng=0;
-    //MapView myOpenMapView;
+    private int pointsNr;
+    private GeoPoint gPt;
+    android.app.Activity activity;
     MainActivity mainActivity;
+    Stoper stopperActivity;
     TextView tvTextView;
     Handler gpsHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case MSG_UPDATE_GPS:
-
-                    stopUsingGPS();
-                    getLocation();
                     if(mainActivity.timer.running)
                     {
+                        stopUsingGPS();
+                        getLocation();
                         String message = "MSG_UPDATE_GPS Your distance is " + MainActivity.distance[0] + " meters";
                         tvTextView = (android.widget.TextView) mainActivity.findViewById(R.id.distance);
-                        tvTextView.setText(message);
-                        // np 30s/60s/200m*1000 = 1/400*1000 = 1000/400 = 2,5 min/km
-                        double averageSpeed = mainActivity.timer.getElapsedTimeSecs()/60.0/MainActivity.distance[0]*1000.0;
-                        message = "Tempo:  " + String.format("%.2f", averageSpeed)+ " min/km";
-                        android.widget.TextView avSpeed = (android.widget.TextView) mainActivity.findViewById(R.id.AverageSpeed);
-                        avSpeed.setText(message);
+                        if (tvTextView !=null) tvTextView.setText(message);
+                        if (tvTextView !=null) tvTextView.setText(message);
                     }
-                    gpsHandler.sendEmptyMessageDelayed(MSG_UPDATE_GPS, 10000); //text view is updated every second,
+                    gpsHandler.sendEmptyMessageDelayed(MSG_UPDATE_GPS, 10000); //text view is updated every 10 second,
                     break;                                  //though the timer is still running
                 case MSG_STOP_GPS:
                       gpsHandler.removeMessages(MSG_UPDATE_GPS);
@@ -83,10 +79,11 @@ public class GPS extends Service implements LocationListener {
     // The minimum time between updates in milliseconds
     private static final long MIN_TIME_BW_UPDATES = 5;//1000 * 1 *5; // 5 sec [ms]
 
-    public GPS(MainActivity mainActivity) {
-        this.mainActivity = mainActivity;
+    public GPS(MainActivity activity) {
+        this.mainActivity = activity;
         this.mContext = mainActivity.getApplicationContext();
         getLocation();
+        pointsNr=0;
     }
 
 
@@ -164,18 +161,20 @@ public class GPS extends Service implements LocationListener {
     @Override
     public void onLocationChanged(Location location) {
         if (canGetLocation()) {
-            GeoPoint gPt = new GeoPoint((int) (this.getLatitude() * 1E6), (int) (this.getLongitude() * 1E6));
-            mainActivity.drawPath(gPt);
-            if (!isFirstPoint) {
+            ++pointsNr;
+            gPt = new GeoPoint((int) (this.getLatitude() * 1E6), (int) (this.getLongitude() * 1E6));
+            if (pointsNr>=3) {
                 float[] result=new float[5];
                 location.distanceBetween(this.getLatitude(), this.getLongitude(), oldLat,  oldLng,result);
-                mainActivity.distance[0] +=result[0];
-            } else {
+                MainActivity.distance[0] +=result[0];
+                mainActivity.drawPath(gPt);
+            } else if(pointsNr==2){
                 mainActivity.setMarker(gPt, mainActivity.myMarker, mainActivity.markersOverlay);
                 mainActivity.printIsFirstInfo();
-                mainActivity.distance[0] = 0;
-                isFirstPoint = false;
+                MainActivity.distance[0] = 0;
+                mainActivity.drawPath(gPt);
             }
+            else; //=<2
         }
         else {
             showSettingsAlert();
