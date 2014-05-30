@@ -29,65 +29,32 @@ public class MainActivity extends Activity {
     final int MSG_START_TIMER = 0;
     final int MSG_STOP_TIMER = 1;
     final int MSG_UPDATE_TIMER = 2;
-    final int REFRESH_RATE = 100;
+    final int MSG_UPDATE_GPS = 20;
+    final int MSG_STOP_GPS = 30;
     public MapView myOpenMapView;
     public MapController myMapController;
-    public Intent timerIntent;
     public PathOverlay myPath;
     public org.osmdroid.util.ResourceProxyImpl resProxyImp;
     public android.graphics.drawable.Drawable myMarker;
     public ItemizedIconOverlay markersOverlay;
     public GPS gps;
-
-    Button btnStart,btnStop, btnNextScreen ;
-    private android.os.Handler handler = new android.os.Handler();
-    private Runnable runnable = new Runnable() {
-
-        @Override
-        public void run() {
-            gps.stopUsingGPS();
-            gps.getLocation();
-
-
-            if(timer.running) timer.mHandler.sendEmptyMessage(MSG_UPDATE_TIMER);
-            // na razie tak, żeby działało dla sekund, potem się uogólni
-            // np 30s/60s/200m*1000 = 1/400*1000 = 1000/400 = 2,5 min/km
-            //przeniesc to do gpsa
-
-            if(timer.running)
-            {
-                double averageSpeed = timer.getElapsedTimeSecs()/60.0/distance[0]*1000.0;
-                String message = "Average speed is " + String.format("%.2f", averageSpeed);
-                android.widget.TextView avSpeed = (android.widget.TextView) findViewById(R.id.AverageSpeed);
-                avSpeed.setText(message);
-            }
-            else{
-                distance[0]=0;
-                String message = "0";
-                android.widget.TextView avSpeed = (android.widget.TextView) findViewById(R.id.AverageSpeed);
-                avSpeed.setText(message);
-            }
-            handler.postDelayed(this, 30000);
-        }
-    };
-    TextView tvTextView;
+    public android.widget.TextView tv;
+    public android.widget.TextView avSpeed;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        // jak wraca ze stopera to przywrocic poprzedni widok a nie tworzyc nowego
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Intent i = getIntent();
+        avSpeed = (android.widget.TextView) findViewById(R.id.AverageSpeed);
         MainActivity prevActivity = (MainActivity)getLastNonConfigurationInstance();
         if(timer==null )
             timer = new Stopwatch(MainActivity.this);
         if(prevActivity!= null) {
-            //Toast.makeText(getApplicationContext(), "Rotation!!!  prevActivity exists!\n", Toast.LENGTH_LONG).show();
             this.myOpenMapView = prevActivity.myOpenMapView;
             this.myPath = prevActivity.myPath;
             this.markersOverlay=prevActivity.markersOverlay;
             this.gps = prevActivity.gps;
-            this.tvTextView = prevActivity.tvTextView;
             myOpenMapView = (MapView)findViewById(R.id.openmapview);
             myOpenMapView.getOverlays().add(myPath);
             myOpenMapView.getOverlays().add(markersOverlay);
@@ -99,8 +66,10 @@ public class MainActivity extends Activity {
             GeoPoint gPtCenter = new GeoPoint(52233000 + 100000, 21016700 - 100000);
             myMapController.setCenter(gPtCenter);
             String message = "Your distance is " + distance[0] + " meters";
-            android.widget.TextView tv = (android.widget.TextView) findViewById(R.id.distance);
+            tv = (android.widget.TextView) findViewById(R.id.distance);
             tv.setText(message);
+            //gps activity update
+            gps.mainActivity = MainActivity.this;
         }
         else{
             resProxyImp = new
@@ -119,17 +88,13 @@ public class MainActivity extends Activity {
             myMapController.setZoom(12);
             GeoPoint gPtCenter = new GeoPoint(52233000 + 100000, 21016700 - 100000);
             myMapController.setCenter(gPtCenter);
-            gps = new GPS(MainActivity.this, myOpenMapView, MainActivity.this);
-            // czemu handler?
-            //http://www.mopri.de/2010/timertask-bad-do-it-the-android-way-use-a-handler/comment-page-1/
-            handler.postDelayed(runnable, 10000);
-
+            gps = new GPS(MainActivity.this);
             String message = "Your distance is " + distance[0] + " meters";
-            android.widget.TextView tv = (android.widget.TextView) findViewById(R.id.distance);
+            tv = (android.widget.TextView) findViewById(R.id.distance);
             tv.setText(message);
         }
         if(timer.running) timer.mHandler.sendEmptyMessage(MSG_UPDATE_TIMER);
-
+        gps.gpsHandler.sendEmptyMessage(MSG_UPDATE_GPS);
         Button startTimer;
         startTimer = (Button) findViewById(R.id.startButton);
         startTimer.setOnClickListener(new View.OnClickListener() {
@@ -144,30 +109,31 @@ public class MainActivity extends Activity {
         stopTimer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
-               // Toast.makeText(getApplicationContext(), "STOP Timer", Toast.LENGTH_LONG).show();
+                // Toast.makeText(getApplicationContext(), "STOP Timer", Toast.LENGTH_LONG).show();
                 timer.mHandler.sendEmptyMessage(MSG_STOP_TIMER);
             }
         });
         Button stop;
         stop = (Button) findViewById(R.id.stopGPS);
         stop.setOnClickListener(new View.OnClickListener() {
-             @Override
-             public void onClick(View arg0) {
-             Toast.makeText(getApplicationContext(), "STOP GPS", Toast.LENGTH_LONG).show();
-             gps.stopUsingGPS();
-             handler.removeCallbacks(runnable);
-             finish();
-             }
+            @Override
+            public void onClick(View arg0) {
+                Toast.makeText(getApplicationContext(), "STOP GPS", Toast.LENGTH_LONG).show();
+                gps.gpsHandler.sendEmptyMessage(MSG_STOP_GPS);
+                gps.stopUsingGPS();
+                //handler.removeCallbacks(runnable);
+                finish();
+            }
         });
 
-            Button btnNextScreen = (Button) findViewById(R.id.stoperButton);
-            btnNextScreen.setOnClickListener(new View.OnClickListener() {
+        Button btnNextScreen = (Button) findViewById(R.id.stoperButton);
+        btnNextScreen.setOnClickListener(new View.OnClickListener() {
 
-                public void onClick(View arg0) {
-                    //Starting a new Intent
-                    Intent nextScreen = new Intent(getApplicationContext(), Stoper.class);
-                    startActivity(nextScreen);
-                }
+            public void onClick(View arg0) {
+                //Starting a new Intent
+                Intent nextScreen = new Intent(getApplicationContext(), Stoper.class);
+                startActivity(nextScreen);
+            }
         });
 
     }
