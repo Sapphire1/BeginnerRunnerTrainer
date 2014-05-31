@@ -36,17 +36,26 @@ public class Stoper extends Activity implements OnClickListener{
         double averageSpeed;
         String message;
         if(timer.running)
-            {
+        {
                 timer.mHandler.sendEmptyMessage(MSG_UPDATE_TIMER);
                 //else  android.widget.Toast.makeText(getApplicationContext(), "timer is not runnig!", android.widget.Toast.LENGTH_LONG).show();
-                averageSpeed = (3600*timer.getElapsedTimeHour()+60*timer.getElapsedTimeMin()+timer.getElapsedTimeSecs())/60.0/MainActivity.distance[0]*1000.0;
-                message = "Tempo:  " + String.format("%.2f", averageSpeed)+ " min/km";
-                android.widget.TextView avSpeed = (android.widget.TextView) findViewById(R.id.AverageSpeed);
-                if (avSpeed!=null) avSpeed.setText(message);
-                message = "Dystans:  " + String.format("%.1f", MainActivity.distance[0]) + " m";
-                android.widget.TextView distanceStopper = (android.widget.TextView) findViewById(R.id.distanceStopper);
-                if (distanceStopper !=null) distanceStopper .setText(message);
-            }
+        }
+
+        TextView tvTextView = (TextView) findViewById(R.id.etapTime);
+        if (tvTextView != null)
+            tvTextView.setText("Czas etapu: " + timer.etapTime + ":" + timer.getElapsedTimeSecs());
+
+        tvTextView = (TextView) findViewById(R.id.TimerText);
+        if (tvTextView != null)
+            tvTextView.setText("Czas: " + timer.getElapsedTimeHour() + ":" + timer.getElapsedTimeMin() + ":" + timer.getElapsedTimeSecs());
+
+        averageSpeed = (3600*timer.getElapsedTimeHour()+60*timer.getElapsedTimeMin()+timer.getElapsedTimeSecs())/60.0/MainActivity.distance[0]*1000.0;
+        message = "Tempo:  " + String.format("%.2f", averageSpeed)+ " min/km";
+        android.widget.TextView avSpeed = (android.widget.TextView) findViewById(R.id.AverageSpeed);
+        if (avSpeed!=null) avSpeed.setText(message);
+        message = "Dystans:  " + String.format("%.1f", MainActivity.distance[0]) + " m";
+        android.widget.TextView distanceStopper = (android.widget.TextView) findViewById(R.id.distanceStopper);
+        if (distanceStopper !=null) distanceStopper.setText(message);
     }
 
 
