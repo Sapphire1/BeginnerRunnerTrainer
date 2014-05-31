@@ -42,11 +42,10 @@ public class GPS extends Service implements LocationListener {
     double latitude; // latitude
     double longitude; // longitude
     double oldLat=0, oldLng=0;
-    private int pointsNr;
+    public int pointsNr;
     private GeoPoint gPt;
     android.app.Activity activity;
     MainActivity mainActivity;
-    Stoper stopperActivity;
     TextView tvTextView;
     Handler gpsHandler = new Handler() {
         @Override
@@ -59,7 +58,6 @@ public class GPS extends Service implements LocationListener {
                         getLocation();
                         String message = "MSG_UPDATE_GPS Your distance is " + MainActivity.distance[0] + " meters";
                         tvTextView = (android.widget.TextView) mainActivity.findViewById(R.id.distance);
-                        if (tvTextView !=null) tvTextView.setText(message);
                         if (tvTextView !=null) tvTextView.setText(message);
                     }
                     gpsHandler.sendEmptyMessageDelayed(MSG_UPDATE_GPS, 10000); //text view is updated every 10 second,

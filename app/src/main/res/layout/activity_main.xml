@@ -9,14 +9,6 @@
         android:layout_height="wrap_content"
         android:id="@+id/distance"/>
 
-    <EditText
-        android:id="@+id/TextViewTimer"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:ems="10" >
-        <requestFocus />
-    </EditText>
-
 
     <include
         android:layout_width="fill_parent"

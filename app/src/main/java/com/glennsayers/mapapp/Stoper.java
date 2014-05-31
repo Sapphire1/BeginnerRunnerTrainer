@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class Stoper extends Activity implements OnClickListener{
 
@@ -32,24 +33,30 @@ public class Stoper extends Activity implements OnClickListener{
                 finish();
             }
         });
-        btnStart = (Button)findViewById(R.id.startButton);
-        btnStop= (Button)findViewById(R.id.stopButton);
-        btnStart.setOnClickListener(this);
-        btnStop.setOnClickListener(this);
-        btnNextScreen = (Button) findViewById(R.id.mapButton);
-        btnNextScreen.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View arg0) {
-                finish();
+        double averageSpeed;
+        String message;
+        if(timer.running)
+            {
+                timer.mHandler.sendEmptyMessage(MSG_UPDATE_TIMER);
+                //else  android.widget.Toast.makeText(getApplicationContext(), "timer is not runnig!", android.widget.Toast.LENGTH_LONG).show();
+                averageSpeed = (3600*timer.getElapsedTimeHour()+60*timer.getElapsedTimeMin()+timer.getElapsedTimeSecs())/60.0/MainActivity.distance[0]*1000.0;
+                message = "Tempo:  " + String.format("%.2f", averageSpeed)+ " min/km";
+                android.widget.TextView avSpeed = (android.widget.TextView) findViewById(R.id.AverageSpeed);
+                if (avSpeed!=null) avSpeed.setText(message);
+                message = "Dystans:  " + String.format("%.1f", MainActivity.distance[0]) + " m";
+                android.widget.TextView distanceStopper = (android.widget.TextView) findViewById(R.id.distanceStopper);
+                if (distanceStopper !=null) distanceStopper .setText(message);
             }
-        });
-        if(timer.running) timer.mHandler.sendEmptyMessage(MSG_UPDATE_TIMER);
-        //else  android.widget.Toast.makeText(getApplicationContext(), "timer is not runnig!", android.widget.Toast.LENGTH_LONG).show();
     }
+
 
     public void onClick(View v) {
         if(btnStart == v)
         {
-            timer.mHandler.sendEmptyMessage(MSG_START_TIMER);
+            if(!timer.running)
+                timer.mHandler.sendEmptyMessage(MSG_START_TIMER);
+            else
+                Toast.makeText(getApplicationContext(), "Timer is running!!!", Toast.LENGTH_LONG).show();
         }else
         if(btnStop == v){
             timer.mHandler.sendEmptyMessage(MSG_STOP_TIMER);

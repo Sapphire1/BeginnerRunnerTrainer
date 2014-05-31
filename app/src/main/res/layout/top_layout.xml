@@ -7,13 +7,13 @@ android:orientation="horizontal"
 
     <Button
         android:id="@+id/startButton"
-        android:layout_width="116dp"
+        android:layout_width="120dp"
         android:layout_height="61dp"
         android:text="@string/startTrening" />
 
     <Button
-            android:layout_width="132dp"
-            android:layout_height="62dp"
+            android:layout_width="93dp"
+            android:layout_height="61dp"
             android:text="@string/STOPAPP"
             android:id="@+id/stopGPS"/>
 

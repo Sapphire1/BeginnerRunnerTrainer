@@ -34,7 +34,12 @@ public class TreningType extends Activity {
                 finish();
             }
         });
-    }
+
+
+}
+
+
+
 
 
     @Override

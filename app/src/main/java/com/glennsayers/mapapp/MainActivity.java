@@ -11,19 +11,16 @@ import org.osmdroid.views.overlay.PathOverlay;
 import android.graphics.Color;
 
 import android.app.Activity;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import android.content.Intent;
 
 
-
-
 public class MainActivity extends Activity {
-
     public Stopwatch timer;
     public static float[] distance = new float[1];
     final int MSG_START_TIMER = 0;
@@ -33,13 +30,15 @@ public class MainActivity extends Activity {
     final int MSG_STOP_GPS = 30;
     public MapView myOpenMapView;
     public MapController myMapController;
-    public PathOverlay myPath;
+    public static PathOverlay myPath;
     public org.osmdroid.util.ResourceProxyImpl resProxyImp;
     public android.graphics.drawable.Drawable myMarker;
-    public ItemizedIconOverlay markersOverlay;
-    public GPS gps;
+    public static ItemizedIconOverlay markersOverlay;
+    public static GPS gps;
     public android.widget.TextView tv;
     public android.widget.TextView avSpeed;
+    public static     android.media.MediaPlayer mpwalk;
+    public static  android.media.MediaPlayer mprun;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -52,9 +51,9 @@ public class MainActivity extends Activity {
             timer = new Stopwatch(MainActivity.this);
         if(prevActivity!= null) {
             this.myOpenMapView = prevActivity.myOpenMapView;
-            this.myPath = prevActivity.myPath;
-            this.markersOverlay=prevActivity.markersOverlay;
-            this.gps = prevActivity.gps;
+            //this.myPath = prevActivity.myPath;
+            //this.markersOverlay=prevActivity.markersOverlay;
+            //this.gps = prevActivity.gps;
             myOpenMapView = (MapView)findViewById(R.id.openmapview);
             myOpenMapView.getOverlays().add(myPath);
             myOpenMapView.getOverlays().add(markersOverlay);
@@ -93,6 +92,9 @@ public class MainActivity extends Activity {
             tv = (android.widget.TextView) findViewById(R.id.distance);
             tv.setText(message);
         }
+        setVolumeControlStream(AudioManager.STREAM_MUSIC);
+        mprun = android.media.MediaPlayer.create(getApplicationContext() , R.raw.run);
+        mpwalk = android.media.MediaPlayer.create(getApplicationContext() , R.raw.walk);
         if(timer.running) timer.mHandler.sendEmptyMessage(MSG_UPDATE_TIMER);
         gps.gpsHandler.sendEmptyMessage(MSG_UPDATE_GPS);
         Button startTimer;
@@ -101,7 +103,10 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View arg0) {
                 //Toast.makeText(getApplicationContext(), "Start timer", Toast.LENGTH_LONG).show();
-                timer.mHandler.sendEmptyMessage(MSG_START_TIMER);
+                if(!timer.running)
+                    timer.mHandler.sendEmptyMessage(MSG_START_TIMER);
+                else
+                    Toast.makeText(getApplicationContext(), "Timer is running!!!", Toast.LENGTH_LONG).show();
             }
         });
         /*
@@ -161,6 +166,24 @@ public class MainActivity extends Activity {
     }
     public Object onRetainNonConfigurationInstance() {
         return this;
+    }
+
+    public static void resetMap()
+    {
+        MainActivity.distance[0]=0;
+        MainActivity.myPath.clearPath();
+        MainActivity.markersOverlay.removeAllItems();
+        MainActivity.gps.pointsNr = 0;
+    }
+    @Override
+    protected void onDestroy() {
+        if(null!=mprun){
+            mprun.release();
+        }
+        if(null!=mpwalk){
+            mpwalk.release();
+        }
+        super.onDestroy();
     }
 
 }

@@ -4,7 +4,7 @@
     <string name="app_name">MapApp</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-    <string name="distance">Distance:</string>
+    <string name="distance">Przebyta droga: 0 m</string>
     <string name="reset">Update</string>
     <string name="stopGPS">Stop</string>
     <string name="title_activity_trening_type">TreningTypeActivity</string>
@@ -13,10 +13,14 @@
     <string name="Advanced">Zaawansowany</string>
     <string name="title_activity_stoper">Stoper</string>
     <string name="Mapa">Mapa</string>
-    <string name="stopperButton">Liczniki</string>
-    <string name="AverageSpeed">AverageSpeed</string>
+    <string name="stopperButton">Szczegóły</string>
+    <string name="AverageSpeed">Tempo: 0 min/km</string>
     <string name="STOPAPP">Zakończ</string>
     <string name="startTrening">Rozpocznij</string>
     <string name="distanceStopper">Pokonany dystans</string>
+    <string name="etapTime">Czas etapu: 0:0</string>
+    <string name="fullTime">Łączny czas</string>
+    <string name="Time">Czas</string>
+    <string name="FullTime">Łączny czas: 0:0:0</string>
 
 </resources>
