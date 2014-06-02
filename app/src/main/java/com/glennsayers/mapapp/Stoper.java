@@ -2,8 +2,6 @@ package com.glennsayers.mapapp;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -49,8 +47,16 @@ public class Stoper extends Activity implements OnClickListener{
         if (tvTextView != null)
             tvTextView.setText("Czas: " + timer.getElapsedTimeHour() + ":" + timer.getElapsedTimeMin() + ":" + timer.getElapsedTimeSecs());
 
-        averageSpeed = (3600*timer.getElapsedTimeHour()+60*timer.getElapsedTimeMin()+timer.getElapsedTimeSecs())/60.0/MainActivity.distance[0]*1000.0;
-        message = "Tempo:  " + String.format("%.2f", averageSpeed)+ " min/km";
+        if(MainActivity.distance[0]>0.0 && 3600 * (timer.getElapsedTimeHour() + 60 * timer.getElapsedTimeMin() + timer.getElapsedTimeSecs())>0)
+            averageSpeed = (3600*timer.getElapsedTimeHour()+60*timer.getElapsedTimeMin()+timer.getElapsedTimeSecs())/60.0/MainActivity.distance[0]*1000.0;
+        else
+            averageSpeed =0;
+        // odcinamy ułamek
+        int averageSpeedMin = (int)averageSpeed;
+        // od całości odejmujemy minuty i resztę przeliczamy na sekundy
+        int averageSpeedSec = (int) (((averageSpeed - (double) averageSpeedMin) )*0.6*100);
+
+        message = "Tempo:  " + averageSpeedMin + ":"+averageSpeedSec + " min/km";
         android.widget.TextView avSpeed = (android.widget.TextView) findViewById(R.id.AverageSpeed);
         if (avSpeed!=null) avSpeed.setText(message);
         message = "Dystans:  " + String.format("%.1f", MainActivity.distance[0]) + " m";
@@ -65,7 +71,7 @@ public class Stoper extends Activity implements OnClickListener{
             if(!timer.running)
                 timer.mHandler.sendEmptyMessage(MSG_START_TIMER);
             else
-                Toast.makeText(getApplicationContext(), "Timer is running!!!", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "Już włączone!", Toast.LENGTH_LONG).show();
         }else
         if(btnStop == v){
             timer.mHandler.sendEmptyMessage(MSG_STOP_TIMER);

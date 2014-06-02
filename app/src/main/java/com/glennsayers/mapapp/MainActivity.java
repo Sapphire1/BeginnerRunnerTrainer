@@ -19,6 +19,8 @@ import android.widget.Toast;
 
 import android.content.Intent;
 
+import java.util.HashMap;
+
 
 public class MainActivity extends Activity {
     public Stopwatch timer;
@@ -36,17 +38,35 @@ public class MainActivity extends Activity {
     public static ItemizedIconOverlay markersOverlay;
     public static GPS gps;
     public android.widget.TextView tv;
-    public android.widget.TextView avSpeed;
     public static     android.media.MediaPlayer mpwalk;
     public static  android.media.MediaPlayer mprun;
+    public static HashMap<Integer, int[]> trainingSheduleMap = new HashMap<Integer, int[]>();
+    public static int weekNr;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        //weekNr=3;
+        int weeks;
+        initTimeSchedule();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Intent i = getIntent();
-        //avSpeed = (android.widget.TextView) findViewById(R.id.AverageSpeed);
         MainActivity prevActivity = (MainActivity)getLastNonConfigurationInstance();
+        long savedDateInMilis;
+        android.content.SharedPreferences preferences2 = android.preference.PreferenceManager.getDefaultSharedPreferences(this);
+        savedDateInMilis = preferences2.getLong("storedDateinMilis",0);
+        // save date of first training
+        if(savedDateInMilis==0) {
+            android.content.SharedPreferences preferences = android.preference.PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            android.content.SharedPreferences.Editor editor = preferences.edit();
+            editor.putLong("storedDateinMilis", new java.util.Date().getTime()); // value to store
+            editor.commit();
+        }
+        long dateDiff =  (new java.util.Date().getTime())-savedDateInMilis;
+        int days = (int) (dateDiff/ 86400000);
+        weeks = days/7+1;
+        weekNr=weeks;
+        Toast.makeText(getApplicationContext(), "Trenujesz już: " +days +" dni."+ " To jest tydzień "+ weekNr, Toast.LENGTH_LONG).show();
         if(timer==null )
             timer = new Stopwatch(MainActivity.this);
         if(prevActivity!= null) {
@@ -106,7 +126,7 @@ public class MainActivity extends Activity {
                 if(!timer.running)
                     timer.mHandler.sendEmptyMessage(MSG_START_TIMER);
                 else
-                    Toast.makeText(getApplicationContext(), "Timer is running!!!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Już włączony", Toast.LENGTH_LONG).show();
             }
         });
         /*
@@ -186,4 +206,54 @@ public class MainActivity extends Activity {
         super.onDestroy();
     }
 
+    void initTimeSchedule(){
+        int [] trainingWeek1 = {1,1,7};
+        trainingSheduleMap.put(1,trainingWeek1);
+        int [] trainingWeek2 = {1,2,5};
+        trainingSheduleMap.put(2,trainingWeek2);
+        int [] trainingWeek3 = {1,3,4};
+        trainingSheduleMap.put(3,trainingWeek3);
+        int [] trainingWeek4 = {1,4,4};
+        trainingSheduleMap.put(4,trainingWeek4);
+        int [] trainingWeek5 = {1,5,4};
+        trainingSheduleMap.put(5,trainingWeek5);
+        int [] trainingWeek6 = {1,6,4};
+        trainingSheduleMap.put(6,trainingWeek6);
+        int [] trainingWeek7 = {1,7,4};
+        trainingSheduleMap.put(6,trainingWeek7);
+        int [] trainingWeek8 = {1,8,4};
+        trainingSheduleMap.put(7,trainingWeek8);
+        int [] trainingWeek9 = {1,9,4};
+        trainingSheduleMap.put(9,trainingWeek9);
+        int [] trainingWeek10 = {1,10,4};
+        trainingSheduleMap.put(10,trainingWeek10);
+        int [] trainingWeek11 = {1,15,3};
+        trainingSheduleMap.put(11,trainingWeek11);
+        int [] trainingWeek12 = {1,15,3};
+        trainingSheduleMap.put(12,trainingWeek12);
+        int [] trainingWeek13 = {1,20,3};
+        trainingSheduleMap.put(13,trainingWeek13);
+        int [] trainingWeek14 = {1,20,3};
+        trainingSheduleMap.put(14,trainingWeek14);
+        int [] trainingWeek15 = {1,30,2};
+        trainingSheduleMap.put(15,trainingWeek15);
+        int [] trainingWeek16 = {1,30,2};
+        trainingSheduleMap.put(16,trainingWeek16);//40,1,19;45,1,14;50,1,8
+        /*
+        int [] trainingWeek171 = {1,40,1};
+        trainingSheduleMap.put("171",trainingWeek171);
+        int [] trainingWeek172 = {1,19,1};
+        trainingSheduleMap.put("171",trainingWeek172);
+        int [] trainingWeek182 = {1,45,1};
+        trainingSheduleMap.put("181",trainingWeek182);
+        int [] trainingWeek181 = {1,14,1};
+        trainingSheduleMap.put("181",trainingWeek181);
+        int [] trainingWeek191 = {1,50,1};
+        trainingSheduleMap.put("191",trainingWeek191);
+        int [] trainingWeek192 = {1,8,1};
+        trainingSheduleMap.put("191",trainingWeek192);
+        */
+        int [] trainingWeek20 = {1,60,1};
+        trainingSheduleMap.put(20,trainingWeek20);
+    }
 }

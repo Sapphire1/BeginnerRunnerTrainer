@@ -2,7 +2,6 @@ package com.glennsayers.mapapp;
 
 import android.app.Service;
 import android.content.Intent;
-import android.media.AudioManager;
 import android.os.IBinder;
 import android.os.Message;
 import android.widget.TextView;
@@ -20,10 +19,12 @@ public class Stopwatch extends Service {
     final int REFRESH_RATE = 1000;
     public static int etapWalkNr = 0;
     public static int etapRunNr = 0;
-    int walkTimeMin = 1;
-    int runTimeMin = 2;
+    int walkTimeMin = 0;
+    int runTimeMin = 0;
+    int iterationCounter = 0;
     public static int etapsAmount = 0;
     public static long etapTime=0;
+    int[] weekShedule;
 
     android.content.Context appContext;
     boolean walk;
@@ -31,20 +32,32 @@ public class Stopwatch extends Service {
     TextView tvTextView;
     android.app.Activity activity;
     double averageSpeed;
-    int iterationCounter = 1;
+    int averageSpeedMin = 0;
+    int averageSpeedSec = 0;
+
 
     public Stopwatch(android.app.Activity activity){
         this.activity = activity;
         run=false;
         walk=false;
         appContext = activity.getApplicationContext();
+        if(MainActivity.weekNr==17||MainActivity.weekNr==18||MainActivity.weekNr==19)
+            MainActivity.weekNr=20;
+        if(MainActivity.weekNr>20)
+            MainActivity.weekNr=20;
+        weekShedule =  MainActivity.trainingSheduleMap.get(MainActivity.weekNr);
+        walkTimeMin = weekShedule[0];
+        runTimeMin = weekShedule[1];
+        iterationCounter = weekShedule[2];
     }
     Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case MSG_START_TIMER:
-                    Toast.makeText(activity.getApplicationContext(), "StartTimer!!!!", Toast.LENGTH_LONG).show();
+                    //Toast.makeText(activity.getApplicationContext(), "StartTimer!!!!", Toast.LENGTH_LONG).show();
+                    etapWalkNr = 0;
+                    etapRunNr = 0;
                     MainActivity.resetMap();
                     start(); //start timer
                     etapsAmount=iterationCounter;
@@ -57,7 +70,6 @@ public class Stopwatch extends Service {
                         etapTime = elapsedMinutes - (etapWalkNr * walkTimeMin) - (etapRunNr * runTimeMin);
                             // start training
                         if (getElapsedTimeSecs() == 0 && getElapsedTimeMin() == 0) {
-                            // moze nie idz tylko "Szybkie chodzenie!"?
                             MainActivity.mpwalk.start();
                             Toast.makeText(activity.getApplicationContext(), "Idź!", Toast.LENGTH_LONG).show();
                             walk=true;
@@ -67,25 +79,52 @@ public class Stopwatch extends Service {
                             walk = false;
                             run = true;
                             MainActivity.mprun.start();
-                            Toast.makeText(activity.getApplicationContext(), "Biegnij!" + etapWalkNr, Toast.LENGTH_LONG).show();
+                            Toast.makeText(activity.getApplicationContext(), "Biegnij!", Toast.LENGTH_LONG).show();
+
                         } else if (run && etapTime >= runTimeMin) {
                             ++etapRunNr;
-                            run = false;
-                            walk = true;
                             --etapsAmount;
                             if (etapsAmount >= 1) {
+                                run = false;
+                                walk = true;
                                 MainActivity.mpwalk.start();
                                 Toast.makeText(activity.getApplicationContext(), "Idź!", Toast.LENGTH_LONG).show();
+                            }
+                            else {
+                                // "Koniec Treningu. Gratulacje!"
+                                // MainActivity.mpEnd.start();
+                                if(MainActivity.weekNr!=171 && MainActivity.weekNr!=181 && MainActivity.weekNr!=191)
+                                {
+                                    Toast.makeText(activity.getApplicationContext(), "Koniec treningu :), Gratulacje!!! " +etapsAmount, Toast.LENGTH_LONG).show();
+                                    stop();
+                                }
+                                /*
+                                else
+                                {
+                                    if(MainActivity.weekNr==171)
+                                        MainActivity.weekNr=172;
+                                    else if(MainActivity.weekNr==181)
+                                        MainActivity.weekNr=182;
+                                    else if(MainActivity.weekNr==191)
+                                        MainActivity.weekNr=192;
+                                    String stringWeekNr = MainActivity.weekNr + "";
+                                    int[] weekShedule =  MainActivity.trainingSheduleMap.get(stringWeekNr);
+                                    walkTimeMin = weekShedule[0];
+                                    runTimeMin = weekShedule[1];
+                                    iterationCounter = weekShedule[2];
+                                    etapsAmount=iterationCounter;
+
+                                    MainActivity.mpwalk.start();
+                                    Toast.makeText(activity.getApplicationContext(), "Idź!" + etapWalkNr, Toast.LENGTH_LONG).show();
+                                    walk=true;
+                                    run=false;
+                                }
+                                */
                             }
                         }
 
                         //koniec treningu
-                        if (etapsAmount < 1) {
-                            // "Koniec Treningu. Gratulacje!"
-                            // MainActivity.mpEnd.start();
-                            Toast.makeText(activity.getApplicationContext(), "Koniec treningu :), Gratulacje!!! " +etapsAmount, Toast.LENGTH_LONG).show();
-                            stop();
-                        }
+
                         tvTextView = (TextView) activity.findViewById(R.id.etapTime);
                         if (tvTextView != null)
                             tvTextView.setText("Czas etapu: " + etapTime + ":" + getElapsedTimeSecs());
@@ -101,9 +140,17 @@ public class Stopwatch extends Service {
                             String message = "Dystans:  " + String.format("%.1f", MainActivity.distance[0]) + " m";
                             android.widget.TextView distanceStopper = (android.widget.TextView) activity.findViewById(R.id.distanceStopper);
                             if (distanceStopper != null) distanceStopper.setText(message);
+                            if(MainActivity.distance[0]>0.0 && 3600 * (getElapsedTimeHour() + 60 * getElapsedTimeMin() + getElapsedTimeSecs())>0)
+                                averageSpeed = (3600 * getElapsedTimeHour() + 60 * getElapsedTimeMin() + getElapsedTimeSecs()) / 60.0 / MainActivity.distance[0] * 1000.0;
+                            else
+                                averageSpeed=0.0;
 
-                            averageSpeed = (3600 * getElapsedTimeHour() + 60 * getElapsedTimeMin() + getElapsedTimeSecs()) / 60.0 / MainActivity.distance[0] * 1000.0;
-                            message = "Tempo:  " + String.format("%.2f", averageSpeed) + " min/km";
+                            // odcinamy ułamek
+                            averageSpeedMin = (int)averageSpeed;
+                            // od całości odejmujemy minuty i resztę przeliczamy na sekundy
+                            averageSpeedSec = (int) (((averageSpeed - (double) averageSpeedMin) )*0.6*100);
+
+                            message = "Tempo:  " + averageSpeedMin + ":"+averageSpeedSec + " min/km";
                             android.widget.TextView avSpeed = (android.widget.TextView) activity.findViewById(R.id.AverageSpeed);
                             if (avSpeed != null) avSpeed.setText(message);
                         }
@@ -124,7 +171,6 @@ public class Stopwatch extends Service {
 
     public static long startTime = 0;
     public static boolean running = false;
-    public static long currentTime = 0;
     public static long elapsed = 0;
     public static long lastElapsedTimeMili = 0;
     public static long lastElapsedTimeSecs = 0;
