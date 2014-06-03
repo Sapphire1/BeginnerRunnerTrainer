@@ -6,19 +6,15 @@ import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.overlay.ItemizedIconOverlay;
 import org.osmdroid.views.overlay.OverlayItem;
-
 import org.osmdroid.views.overlay.PathOverlay;
 import android.graphics.Color;
-
 import android.app.Activity;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
-
 import android.content.Intent;
-
 import java.util.HashMap;
 
 
@@ -40,33 +36,44 @@ public class MainActivity extends Activity {
     public android.widget.TextView tv;
     public static     android.media.MediaPlayer mpwalk;
     public static  android.media.MediaPlayer mprun;
+    public static     android.media.MediaPlayer mpfaster;
+    public static  android.media.MediaPlayer mpslower;
+    public static  android.media.MediaPlayer mpEnd;
     public static HashMap<Integer, int[]> trainingSheduleMap = new HashMap<Integer, int[]>();
     public static int weekNr;
 
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        //weekNr=3;
-        int weeks;
         initTimeSchedule();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        MainActivity prevActivity = (MainActivity)getLastNonConfigurationInstance();
-        long savedDateInMilis;
-        android.content.SharedPreferences preferences2 = android.preference.PreferenceManager.getDefaultSharedPreferences(this);
-        savedDateInMilis = preferences2.getLong("storedDateinMilis",0);
-        // save date of first training
-        if(savedDateInMilis==0) {
-            android.content.SharedPreferences preferences = android.preference.PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-            android.content.SharedPreferences.Editor editor = preferences.edit();
-            editor.putLong("storedDateinMilis", new java.util.Date().getTime()); // value to store
-            editor.commit();
+        MainActivity prevActivity = (MainActivity) getLastNonConfigurationInstance();
+        if(AdvancedSettings.isAdvanced==true)
+        {
+            weekNr=20;
+            Toast.makeText(getApplicationContext(), "Trening dla zaawansowanego! " + weekNr, Toast.LENGTH_LONG).show();
         }
-        long dateDiff =  (new java.util.Date().getTime())-savedDateInMilis;
-        int days = (int) (dateDiff/ 86400000);
-        weeks = days/7+1;
-        weekNr=weeks;
-        Toast.makeText(getApplicationContext(), "Trenujesz już: " +days +" dni."+ " To jest tydzień "+ weekNr, Toast.LENGTH_LONG).show();
+        else {
+            int weeks;
+            long savedDateInMilis;
+            android.content.SharedPreferences preferences2 = android.preference.PreferenceManager.getDefaultSharedPreferences(this);
+            savedDateInMilis = preferences2.getLong("storedDateinMilis", 0);
+            // save date of first training
+            if (savedDateInMilis == 0) {
+                android.content.SharedPreferences preferences = android.preference.PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                android.content.SharedPreferences.Editor editor = preferences.edit();
+                editor.putLong("storedDateinMilis", new java.util.Date().getTime()); // value to store
+                editor.commit();
+            }
+            long dateDiff = (new java.util.Date().getTime()) - savedDateInMilis;
+            int days = (int) (dateDiff / 86400000);
+            weeks = days / 7 + 1;
+            weekNr = weeks;
+            if(weekNr<1000)
+                Toast.makeText(getApplicationContext(), "Trenujesz już: " + days + " dni." + " To jest tydzień " + weekNr, Toast.LENGTH_LONG).show();
+        }
+
         if(timer==null )
             timer = new Stopwatch(MainActivity.this);
         if(prevActivity!= null) {
@@ -115,6 +122,11 @@ public class MainActivity extends Activity {
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
         mprun = android.media.MediaPlayer.create(getApplicationContext() , R.raw.run);
         mpwalk = android.media.MediaPlayer.create(getApplicationContext() , R.raw.walk);
+        mpslower = android.media.MediaPlayer.create(getApplicationContext() , R.raw.slower);
+        mpfaster = android.media.MediaPlayer.create(getApplicationContext() , R.raw.faster);
+        mpEnd = android.media.MediaPlayer.create(getApplicationContext() , R.raw.end);
+
+
         if(timer.running) timer.mHandler.sendEmptyMessage(MSG_UPDATE_TIMER);
         gps.gpsHandler.sendEmptyMessage(MSG_UPDATE_GPS);
         Button startTimer;
@@ -255,5 +267,7 @@ public class MainActivity extends Activity {
         */
         int [] trainingWeek20 = {1,60,1};
         trainingSheduleMap.put(20,trainingWeek20);
+        int [] trainingWeek100 = {0,AdvancedSettings.fulltimeValue,1};
+        trainingSheduleMap.put(20,trainingWeek100);
     }
 }

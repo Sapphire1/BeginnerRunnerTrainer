@@ -22,5 +22,12 @@
     <string name="fullTime">Łączny czas</string>
     <string name="Time">Czas</string>
     <string name="FullTime">Łączny czas: 0:0:0</string>
+    <string name="AverageSpeedSettings">Podaj docelowe tempo, [min:sec]/[km]</string>
+    <string name="TimeSettings">Podaj czas biegu [min]</string>
+    <string name="title_activity_advanced_settings">AdvancedSettings</string>
+    <string name="Trening">Trening</string>
+    <string name="minTime">Minuty  </string>
+    <string name="SecTime">   :   </string>
+    <string name="resetDate">Zacznij od początku</string>
 
 </resources>

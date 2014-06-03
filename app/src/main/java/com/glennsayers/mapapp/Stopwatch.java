@@ -68,10 +68,25 @@ public class Stopwatch extends Service {
                     if(running){
                         long elapsedMinutes = getElapsedTimeHour() * 60 + getElapsedTimeMin();
                         etapTime = elapsedMinutes - (etapWalkNr * walkTimeMin) - (etapRunNr * runTimeMin);
+                        if(AdvancedSettings.isAdvanced && MainActivity.distance[0]>0.0 && getElapsedTimeSecs()%30==0)
+                        {
+                            long averegeSettingsTime = AdvancedSettings.minTimeValue*60+AdvancedSettings.secTimeValue;
+                            long everageTimeInSec = averageSpeedMin*60 + averageSpeedSec;
+                            if(averegeSettingsTime+30<everageTimeInSec){
+                                Toast.makeText(activity.getApplicationContext(), "Szybciej!", Toast.LENGTH_LONG).show();
+                                MainActivity.mpfaster.start();
+                            }
+                            else  if(averegeSettingsTime-30>everageTimeInSec) {
+                                Toast.makeText(activity.getApplicationContext(), "Zwolnij!", Toast.LENGTH_LONG).show();
+                                MainActivity.mpslower.start();
+                            }
+                        }
                             // start training
                         if (getElapsedTimeSecs() == 0 && getElapsedTimeMin() == 0) {
-                            MainActivity.mpwalk.start();
-                            Toast.makeText(activity.getApplicationContext(), "Idź!", Toast.LENGTH_LONG).show();
+                            if(!AdvancedSettings.isAdvanced) {
+                                Toast.makeText(activity.getApplicationContext(), "Idź!", Toast.LENGTH_LONG).show();
+                                MainActivity.mpwalk.start();
+                            }
                             walk=true;
                             run=false;
                         } else if (walk && etapTime >= walkTimeMin) {// <- tutaj jest problem bo jak się zatrzymuje to wpisuje straszne głupoty i wchodzi do teog warunku
@@ -92,10 +107,11 @@ public class Stopwatch extends Service {
                             }
                             else {
                                 // "Koniec Treningu. Gratulacje!"
-                                // MainActivity.mpEnd.start();
+
                                 if(MainActivity.weekNr!=171 && MainActivity.weekNr!=181 && MainActivity.weekNr!=191)
                                 {
-                                    Toast.makeText(activity.getApplicationContext(), "Koniec treningu :), Gratulacje!!! " +etapsAmount, Toast.LENGTH_LONG).show();
+                                    Toast.makeText(activity.getApplicationContext(), "Koniec treningu :), Gratulacje!!! ", Toast.LENGTH_LONG).show();
+                                    MainActivity.mpEnd.start();
                                     stop();
                                 }
                                 /*

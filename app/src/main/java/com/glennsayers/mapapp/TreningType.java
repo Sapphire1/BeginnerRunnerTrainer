@@ -16,14 +16,55 @@ public class TreningType extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trening_type);
-        Button btnNextScreen = (Button) findViewById(R.id.button);
+        Button btnNextScreenBeginner = (Button) findViewById(R.id.beginner);
 
         //Listening to button event
-        btnNextScreen.setOnClickListener(new View.OnClickListener() {
+        btnNextScreenBeginner.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View arg0) {
                 //Starting a new Intent
                 Intent nextScreen = new Intent(getApplicationContext(), MainActivity.class);
+                AdvancedSettings.isAdvanced=false;
+                //Sending data to another Activity
+                //nextScreen.putExtra("name", inputName.getText().toString());
+                //nextScreen.putExtra("email", inputEmail.getText().toString());
+
+                // starting new activity
+                startActivity(nextScreen);
+                finish();
+            }
+        });
+
+        Button btnNextScreenAdvanced = (Button) findViewById(R.id.advanced);
+        //Listening to button event
+        btnNextScreenAdvanced.setOnClickListener(new View.OnClickListener() {
+
+            public void onClick(View arg0) {
+                //Starting a new Intent
+                Intent nextScreen = new Intent(getApplicationContext(), AdvancedSettings.class);
+
+                //Sending data to another Activity
+                //nextScreen.putExtra("name", inputName.getText().toString());
+                //nextScreen.putExtra("email", inputEmail.getText().toString());
+
+                // starting new activity
+                startActivity(nextScreen);
+                finish();
+            }
+        });
+        Button btnNextScreenResetDate = (Button) findViewById(R.id.resetDate);
+        //Listening to button event
+        btnNextScreenResetDate.setOnClickListener(new View.OnClickListener() {
+
+            public void onClick(View arg0) {
+                android.content.SharedPreferences preferences = android.preference.PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                android.content.SharedPreferences.Editor editor = preferences.edit();
+                editor.clear().commit();
+                //Starting a new Intent
+                Intent nextScreen = new Intent(getApplicationContext(), MainActivity.class);
+                AdvancedSettings.isAdvanced=false;
+
+
 
                 //Sending data to another Activity
                 //nextScreen.putExtra("name", inputName.getText().toString());
@@ -37,9 +78,6 @@ public class TreningType extends Activity {
 
 
 }
-
-
-
 
 
     @Override

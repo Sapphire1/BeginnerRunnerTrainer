@@ -19,7 +19,7 @@ public class Stoper extends Activity implements OnClickListener{
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_stoper);
+        setContentView(com.glennsayers.mapapp.R.layout.activity_stoper);
         timer = new Stopwatch(Stoper.this);
         btnStart = (Button)findViewById(R.id.startButton);
         btnStop= (Button)findViewById(R.id.stopButton);
